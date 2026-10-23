@@ -1,0 +1,27 @@
+{
+  "name": "tms-transportation-cockpit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TMS Transportation Cockpit — Next.js UI for the cost-optimized agentic TMS.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "16.4.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "aws-amplify": "6.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.0",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "typescript": "5.5.4"
+  },
+  "overrides": {
+    "fast-xml-parser": "^4.5.4"
+  }
+}

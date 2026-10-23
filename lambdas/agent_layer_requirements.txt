@@ -1,0 +1,5 @@
+# Runtime dependencies for the AI-agent Lambdas (Orchestrator, Planning,
+# Intelligence wrappers). Bundled into a Lambda layer at deploy time.
+# boto3/botocore are provided by the Lambda runtime and are omitted here.
+strands-agents>=1.0.0
+pydantic>=2.0.0

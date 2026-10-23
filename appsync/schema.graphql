@@ -1,0 +1,39 @@
+# AppSync schema for the TMS real-time cockpit feed.
+#
+# The realtime-publisher Lambda calls publishShipmentEvent (IAM auth) for every
+# domain event; the Next.js cockpit subscribes to onShipmentEvent (Cognito auth)
+# to render lifecycle progress in real time.
+
+type ShipmentEvent {
+  event_type: String!
+  shipment_id: String!
+  timestamp: String!
+  step: String
+  model_tier: String
+  confidence: Float
+  payload: AWSJSON
+}
+
+type Mutation {
+  publishShipmentEvent(
+    event_type: String!
+    shipment_id: String!
+    timestamp: String!
+    step: String
+    model_tier: String
+    confidence: Float
+    payload: AWSJSON
+  ): ShipmentEvent
+}
+
+type Subscription {
+  # Fires whenever a new event is published. Clients may filter by shipment_id.
+  onShipmentEvent(shipment_id: String): ShipmentEvent
+    @aws_subscribe(mutations: ["publishShipmentEvent"])
+}
+
+type Query {
+  # Placeholder — the cockpit is subscription-driven; a real query API would
+  # read history from DynamoDB/Athena. Kept so the schema has a Query type.
+  _placeholder: String
+}
