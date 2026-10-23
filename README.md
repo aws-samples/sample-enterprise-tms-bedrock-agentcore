@@ -146,7 +146,7 @@ Model IDs and the threshold live in [shared/constants.py](shared/constants.py).
 | Shipment | One movement of goods from an origin to a destination for a customer. | `SHIPMENT#<id>` record in DynamoDB; tracked through statuses `created` → `carrier_assigned` → `in_transit` → `exception` → `complete`. |
 | Freight unit | The physical unit being moved (pallets, crates, a load) that gets planned and priced. Real TMSs may split one order into several. | CreateFreightUnit creates one freight unit per shipment (`freight_unit_id`). |
 | Lane | A recurring origin-destination pair, such as Chicago, IL → New York, NY. Rates are usually quoted per lane. | 5 seeded lanes in [lambdas/seed_data/handler.py](lambdas/seed_data/handler.py). |
-| Carrier | The company that physically moves the freight (trucking firm, parcel company). | 5 simulated carriers: UPS, FedEx, XPO Logistics, J.B. Hunt, Schneider. |
+| Carrier | The company that physically moves the freight (trucking firm, parcel company). | 5 simulated carriers (Carrier A through Carrier E). |
 | Rate / rate card | The agreed price a carrier charges on a lane, often by weight tier and service type. A rate card is the full table. | `RATE#origin#destination` records with `rate_usd`, `transit_days`, `weight_tier`, `service_type`. |
 | Carrier quote | A carrier's price and transit time for a specific shipment. | Returned by the carrier simulator (seeded rate with a weight multiplier, or a generated rate for unknown lanes). |
 | Tendering / carrier assignment | Offering a shipment to carriers and awarding it to one. | AssignCarrier awards the lowest-rate quote. There is no tender offer/accept round trip or auction in this sample. |
@@ -348,7 +348,7 @@ cdk destroy
 - **Real-time**: AWS AppSync (GraphQL subscriptions)
 - **Analytics**: AWS Glue + Amazon Athena over the S3 event archive (QuickSight optional, not provisioned)
 - **UI**: Next.js Transportation Cockpit (S3 + CloudFront, Cognito auth)
-- **Carriers**: UPS, FedEx, XPO Logistics, J.B. Hunt, Schneider (simulated)
+- **Carriers**: 5 simulated carriers (Carrier A through Carrier E)
 - **Region**: us-east-1
 
 ---

@@ -18,7 +18,7 @@ from lambdas.calculate_charges.handler import handler, FUEL_SURCHARGE_PERCENT
 
 VALID_INPUT = {
     "shipment_id": "ship-001",
-    "carrier_id": "carrier-ups",
+    "carrier_id": "carrier-a",
     "distance_km": 1200.0,
     "weight_kg": 750.0,
 }
@@ -36,7 +36,7 @@ SAMPLE_SHIPMENT = {
 
 SAMPLE_RATE = {
     "PK": "RATE#Chicago, IL#New York, NY",
-    "SK": "CARRIER#carrier-ups",
+    "SK": "CARRIER#carrier-a",
     "rate_usd": "1245.00",
     "transit_days": 3,
     "weight_tier": "500-1000kg",
@@ -233,7 +233,7 @@ class TestChargeCalculation:
         mock_get_item.return_value = SAMPLE_RATE
         result = handler(VALID_INPUT, None)
         assert result["shipment_id"] == "ship-001"
-        assert result["carrier_id"] == "carrier-ups"
+        assert result["carrier_id"] == "carrier-a"
 
     @patch("lambdas.calculate_charges.handler.publish_event")
     @patch("lambdas.calculate_charges.handler.update_shipment")
@@ -345,7 +345,7 @@ class TestEventPublishing:
         # Deterministic step — no AI metadata.
         assert detail["model_tier"] is None
         assert detail["confidence"] is None
-        assert detail["payload"]["carrier_id"] == "carrier-ups"
+        assert detail["payload"]["carrier_id"] == "carrier-a"
         assert detail["payload"]["total_charge"] == "1431.75"
 
     @patch("shared.events._client")
@@ -399,5 +399,5 @@ class TestEventPublishing:
         assert kwargs["event_type"] == "ChargesCalculated"
         assert kwargs["shipment_id"] == "ship-001"
         assert kwargs["step"] == "CalculateCharges"
-        assert kwargs["payload"]["carrier_id"] == "carrier-ups"
+        assert kwargs["payload"]["carrier_id"] == "carrier-a"
         assert kwargs["payload"]["total_charge"] == "1431.75"

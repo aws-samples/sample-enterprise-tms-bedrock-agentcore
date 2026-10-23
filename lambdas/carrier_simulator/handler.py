@@ -28,11 +28,11 @@ logger.setLevel(logging.INFO)
 
 # Default carriers used for simulated quotes when no DynamoDB records found
 _DEFAULT_CARRIERS = [
-    {"carrier_id": "carrier-ups", "carrier_name": "UPS"},
-    {"carrier_id": "carrier-fedex", "carrier_name": "FedEx"},
-    {"carrier_id": "carrier-xpo", "carrier_name": "XPO Logistics"},
-    {"carrier_id": "carrier-jbhunt", "carrier_name": "J.B. Hunt"},
-    {"carrier_id": "carrier-schneider", "carrier_name": "Schneider"},
+    {"carrier_id": "carrier-a", "carrier_name": "Carrier A"},
+    {"carrier_id": "carrier-b", "carrier_name": "Carrier B"},
+    {"carrier_id": "carrier-c", "carrier_name": "Carrier C"},
+    {"carrier_id": "carrier-d", "carrier_name": "Carrier D"},
+    {"carrier_id": "carrier-e", "carrier_name": "Carrier E"},
 ]
 
 
@@ -228,11 +228,11 @@ def _resolve_carrier_name(carrier_id: str) -> str:
 
     # Fallback: derive name from carrier_id
     name_map = {
-        "carrier-ups": "UPS",
-        "carrier-fedex": "FedEx",
-        "carrier-xpo": "XPO Logistics",
-        "carrier-jbhunt": "J.B. Hunt",
-        "carrier-schneider": "Schneider",
+        "carrier-a": "Carrier A",
+        "carrier-b": "Carrier B",
+        "carrier-c": "Carrier C",
+        "carrier-d": "Carrier D",
+        "carrier-e": "Carrier E",
     }
     return name_map.get(carrier_id, carrier_id)
 
@@ -240,11 +240,11 @@ def _resolve_carrier_name(carrier_id: str) -> str:
 def _infer_service_type(carrier_id: str) -> str:
     """Infer a default service type based on carrier ID."""
     service_map = {
-        "carrier-ups": "ground_freight",
-        "carrier-fedex": "express_freight",
-        "carrier-xpo": "ltl_freight",
-        "carrier-jbhunt": "truckload",
-        "carrier-schneider": "truckload",
+        "carrier-a": "ground_freight",
+        "carrier-b": "express_freight",
+        "carrier-c": "ltl_freight",
+        "carrier-d": "truckload",
+        "carrier-e": "truckload",
     }
     return service_map.get(carrier_id, "ground_freight")
 

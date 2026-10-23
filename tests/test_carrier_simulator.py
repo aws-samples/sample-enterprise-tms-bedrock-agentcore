@@ -96,25 +96,25 @@ class TestGetQuotesFromDynamo:
         mock_get_rates.return_value = [
             {
                 "PK": "RATE#Chicago, IL#New York, NY",
-                "SK": "CARRIER#carrier-ups",
+                "SK": "CARRIER#carrier-a",
                 "rate_usd": "1245.00",
                 "transit_days": 3,
                 "service_type": "ground_freight",
             },
             {
                 "PK": "RATE#Chicago, IL#New York, NY",
-                "SK": "CARRIER#carrier-fedex",
+                "SK": "CARRIER#carrier-b",
                 "rate_usd": "1320.00",
                 "transit_days": 2,
                 "service_type": "express_freight",
             },
         ]
-        mock_get_carrier.return_value = {"name": "UPS"}
+        mock_get_carrier.return_value = {"name": "Carrier A"}
 
         quotes = _get_quotes_from_dynamo("Chicago, IL", "New York, NY", 750.0, None)
 
         assert len(quotes) == 2
-        assert quotes[0]["carrier_id"] == "carrier-ups"
+        assert quotes[0]["carrier_id"] == "carrier-a"
         assert quotes[0]["rate_usd"] == 1494.0  # 1245 * 1.2 (500-1000kg tier)
         assert quotes[0]["transit_days"] == 3
         assert quotes[0]["service_type"] == "ground_freight"
@@ -132,27 +132,27 @@ class TestGetQuotesFromDynamo:
         mock_get_rates.return_value = [
             {
                 "PK": "RATE#Chicago, IL#New York, NY",
-                "SK": "CARRIER#carrier-ups",
+                "SK": "CARRIER#carrier-a",
                 "rate_usd": "1245.00",
                 "transit_days": 3,
                 "service_type": "ground_freight",
             },
             {
                 "PK": "RATE#Chicago, IL#New York, NY",
-                "SK": "CARRIER#carrier-fedex",
+                "SK": "CARRIER#carrier-b",
                 "rate_usd": "1320.00",
                 "transit_days": 2,
                 "service_type": "express_freight",
             },
         ]
-        mock_get_carrier.return_value = {"name": "FedEx"}
+        mock_get_carrier.return_value = {"name": "Carrier B"}
 
         quotes = _get_quotes_from_dynamo(
             "Chicago, IL", "New York, NY", 750.0, "express_freight"
         )
 
         assert len(quotes) == 1
-        assert quotes[0]["carrier_id"] == "carrier-fedex"
+        assert quotes[0]["carrier_id"] == "carrier-b"
 
 
 class TestGenerateSimulatedQuotes:
@@ -194,13 +194,13 @@ class TestHandlerEndToEnd:
         mock_get_rates.return_value = [
             {
                 "PK": "RATE#Chicago, IL#New York, NY",
-                "SK": "CARRIER#carrier-ups",
+                "SK": "CARRIER#carrier-a",
                 "rate_usd": "1245.00",
                 "transit_days": 3,
                 "service_type": "ground_freight",
             },
         ]
-        mock_get_carrier.return_value = {"name": "UPS"}
+        mock_get_carrier.return_value = {"name": "Carrier A"}
 
         result = handler(
             {
@@ -213,7 +213,7 @@ class TestHandlerEndToEnd:
 
         assert "quotes" in result
         assert len(result["quotes"]) == 1
-        assert result["quotes"][0]["carrier_name"] == "UPS"
+        assert result["quotes"][0]["carrier_name"] == "Carrier A"
 
     @patch("lambdas.carrier_simulator.handler.get_rates")
     def test_handler_falls_back_to_simulated(self, mock_get_rates):
@@ -242,13 +242,13 @@ class TestHandlerEndToEnd:
         mock_get_rates.return_value = [
             {
                 "PK": "RATE#Atlanta, GA#Miami, FL",
-                "SK": "CARRIER#carrier-ups",
+                "SK": "CARRIER#carrier-a",
                 "rate_usd": "720.00",
                 "transit_days": 2,
                 "service_type": "ground_freight",
             },
         ]
-        mock_get_carrier.return_value = {"name": "UPS"}
+        mock_get_carrier.return_value = {"name": "Carrier A"}
 
         result = handler(
             {

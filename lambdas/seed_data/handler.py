@@ -1,7 +1,7 @@
 """Seed Data Custom Resource Lambda.
 
 Populates the TMS MVP DynamoDB table with:
-- 5 carriers (UPS, FedEx, XPO Logistics, J.B. Hunt, Schneider)
+- 5 carriers (Carrier A, Carrier B, Carrier C, Carrier D, Carrier E)
 - 10-15 rates for 5 lanes × 2-3 carriers each
 - 1 sample shipment for reference
 
@@ -87,36 +87,36 @@ def _build_carrier_items() -> list[dict]:
     """Build 5 carrier profile records."""
     carriers = [
         {
-            "carrier_id": "carrier-ups",
-            "name": "UPS",
+            "carrier_id": "carrier-a",
+            "name": "Carrier A",
             "service_type": "parcel_and_freight",
             "coverage_region": "nationwide",
             "rating": 4.5,
         },
         {
-            "carrier_id": "carrier-fedex",
-            "name": "FedEx",
+            "carrier_id": "carrier-b",
+            "name": "Carrier B",
             "service_type": "express_and_freight",
             "coverage_region": "nationwide",
             "rating": 4.4,
         },
         {
-            "carrier_id": "carrier-xpo",
-            "name": "XPO Logistics",
+            "carrier_id": "carrier-c",
+            "name": "Carrier C",
             "service_type": "ltl_freight",
             "coverage_region": "nationwide",
             "rating": 4.2,
         },
         {
-            "carrier_id": "carrier-jbhunt",
-            "name": "J.B. Hunt",
+            "carrier_id": "carrier-d",
+            "name": "Carrier D",
             "service_type": "intermodal_and_truckload",
             "coverage_region": "nationwide",
             "rating": 4.3,
         },
         {
-            "carrier_id": "carrier-schneider",
-            "name": "Schneider",
+            "carrier_id": "carrier-e",
+            "name": "Carrier E",
             "service_type": "truckload_and_ltl",
             "coverage_region": "nationwide",
             "rating": 4.1,
@@ -146,7 +146,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Chicago, IL",
             "destination": "New York, NY",
-            "carrier_id": "carrier-ups",
+            "carrier_id": "carrier-a",
             "rate_usd": "1245.00",
             "transit_days": 3,
             "weight_tier": "500-1000kg",
@@ -155,7 +155,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Chicago, IL",
             "destination": "New York, NY",
-            "carrier_id": "carrier-fedex",
+            "carrier_id": "carrier-b",
             "rate_usd": "1320.00",
             "transit_days": 2,
             "weight_tier": "500-1000kg",
@@ -164,7 +164,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Chicago, IL",
             "destination": "New York, NY",
-            "carrier_id": "carrier-xpo",
+            "carrier_id": "carrier-c",
             "rate_usd": "1100.00",
             "transit_days": 4,
             "weight_tier": "500-1000kg",
@@ -174,7 +174,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Los Angeles, CA",
             "destination": "Dallas, TX",
-            "carrier_id": "carrier-jbhunt",
+            "carrier_id": "carrier-d",
             "rate_usd": "1580.00",
             "transit_days": 3,
             "weight_tier": "1000-2000kg",
@@ -183,7 +183,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Los Angeles, CA",
             "destination": "Dallas, TX",
-            "carrier_id": "carrier-schneider",
+            "carrier_id": "carrier-e",
             "rate_usd": "1490.00",
             "transit_days": 3,
             "weight_tier": "1000-2000kg",
@@ -192,7 +192,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Los Angeles, CA",
             "destination": "Dallas, TX",
-            "carrier_id": "carrier-ups",
+            "carrier_id": "carrier-a",
             "rate_usd": "1650.00",
             "transit_days": 2,
             "weight_tier": "1000-2000kg",
@@ -202,7 +202,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Seattle, WA",
             "destination": "Denver, CO",
-            "carrier_id": "carrier-fedex",
+            "carrier_id": "carrier-b",
             "rate_usd": "980.00",
             "transit_days": 2,
             "weight_tier": "200-500kg",
@@ -211,7 +211,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Seattle, WA",
             "destination": "Denver, CO",
-            "carrier_id": "carrier-xpo",
+            "carrier_id": "carrier-c",
             "rate_usd": "850.00",
             "transit_days": 3,
             "weight_tier": "200-500kg",
@@ -221,7 +221,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Atlanta, GA",
             "destination": "Miami, FL",
-            "carrier_id": "carrier-ups",
+            "carrier_id": "carrier-a",
             "rate_usd": "720.00",
             "transit_days": 2,
             "weight_tier": "100-200kg",
@@ -230,7 +230,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Atlanta, GA",
             "destination": "Miami, FL",
-            "carrier_id": "carrier-jbhunt",
+            "carrier_id": "carrier-d",
             "rate_usd": "680.00",
             "transit_days": 2,
             "weight_tier": "100-200kg",
@@ -239,7 +239,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Atlanta, GA",
             "destination": "Miami, FL",
-            "carrier_id": "carrier-schneider",
+            "carrier_id": "carrier-e",
             "rate_usd": "750.00",
             "transit_days": 1,
             "weight_tier": "100-200kg",
@@ -249,7 +249,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Boston, MA",
             "destination": "Philadelphia, PA",
-            "carrier_id": "carrier-fedex",
+            "carrier_id": "carrier-b",
             "rate_usd": "550.00",
             "transit_days": 1,
             "weight_tier": "50-100kg",
@@ -258,7 +258,7 @@ def _build_rate_items() -> list[dict]:
         {
             "origin": "Boston, MA",
             "destination": "Philadelphia, PA",
-            "carrier_id": "carrier-xpo",
+            "carrier_id": "carrier-c",
             "rate_usd": "480.00",
             "transit_days": 2,
             "weight_tier": "50-100kg",

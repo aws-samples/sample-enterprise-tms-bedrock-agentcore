@@ -121,8 +121,8 @@ class TestInvokeCarrierSimulator:
         simulator_response = {
             "quotes": [
                 {
-                    "carrier_id": "carrier-ups",
-                    "carrier_name": "UPS",
+                    "carrier_id": "carrier-a",
+                    "carrier_name": "Carrier A",
                     "rate_usd": 1245.0,
                     "transit_days": 3,
                     "service_type": "ground_freight",
@@ -136,7 +136,7 @@ class TestInvokeCarrierSimulator:
         quotes = _invoke_carrier_simulator("Chicago, IL", "New York, NY", 750.0)
 
         assert len(quotes) == 1
-        assert quotes[0]["carrier_id"] == "carrier-ups"
+        assert quotes[0]["carrier_id"] == "carrier-a"
         assert quotes[0]["rate_usd"] == 1245.0
 
     @patch("lambdas.assign_carrier.handler.boto3.client")
@@ -186,22 +186,22 @@ class TestHandlerEndToEnd:
         simulator_response = {
             "quotes": [
                 {
-                    "carrier_id": "carrier-fedex",
-                    "carrier_name": "FedEx",
+                    "carrier_id": "carrier-b",
+                    "carrier_name": "Carrier B",
                     "rate_usd": 1500.0,
                     "transit_days": 2,
                     "service_type": "express_freight",
                 },
                 {
-                    "carrier_id": "carrier-ups",
-                    "carrier_name": "UPS",
+                    "carrier_id": "carrier-a",
+                    "carrier_name": "Carrier A",
                     "rate_usd": 1200.0,
                     "transit_days": 3,
                     "service_type": "ground_freight",
                 },
                 {
-                    "carrier_id": "carrier-xpo",
-                    "carrier_name": "XPO Logistics",
+                    "carrier_id": "carrier-c",
+                    "carrier_name": "Carrier C",
                     "rate_usd": 1350.0,
                     "transit_days": 4,
                     "service_type": "ltl_freight",
@@ -222,9 +222,9 @@ class TestHandlerEndToEnd:
 
         result = handler(event, None)
 
-        # Should select UPS (lowest rate at $1200)
-        assert result["carrier_id"] == "carrier-ups"
-        assert result["carrier_name"] == "UPS"
+        # Should select Carrier A (lowest rate at $1200)
+        assert result["carrier_id"] == "carrier-a"
+        assert result["carrier_name"] == "Carrier A"
         assert result["rate_usd"] == 1200.0
         assert result["service_type"] == "ground_freight"
 
@@ -234,8 +234,8 @@ class TestHandlerEndToEnd:
         assert call_args[0][0] == "ship-001"
         updates = call_args[0][1]
         assert updates["status"] == "carrier_assigned"
-        assert updates["carrier_id"] == "carrier-ups"
-        assert updates["carrier_name"] == "UPS"
+        assert updates["carrier_id"] == "carrier-a"
+        assert updates["carrier_name"] == "Carrier A"
         assert updates["rate_usd"] == "1200.0"
 
         # Verify event was stored in DynamoDB
@@ -259,8 +259,8 @@ class TestHandlerEndToEnd:
         simulator_response = {
             "quotes": [
                 {
-                    "carrier_id": "carrier-ups",
-                    "carrier_name": "UPS",
+                    "carrier_id": "carrier-a",
+                    "carrier_name": "Carrier A",
                     "rate_usd": 1000.0,
                     "transit_days": 3,
                     "service_type": "ground_freight",
@@ -296,8 +296,8 @@ class TestHandlerEndToEnd:
         # Deterministic step — no AI metadata.
         assert detail["model_tier"] is None
         assert detail["confidence"] is None
-        assert detail["payload"]["carrier_id"] == "carrier-ups"
-        assert detail["payload"]["carrier_name"] == "UPS"
+        assert detail["payload"]["carrier_id"] == "carrier-a"
+        assert detail["payload"]["carrier_name"] == "Carrier A"
         assert detail["payload"]["rate_usd"] == 1000.0
         assert detail["payload"]["quotes_evaluated"] == 1
 
@@ -353,8 +353,8 @@ class TestHandlerEndToEnd:
         simulator_response = {
             "quotes": [
                 {
-                    "carrier_id": "carrier-ups",
-                    "carrier_name": "UPS",
+                    "carrier_id": "carrier-a",
+                    "carrier_name": "Carrier A",
                     "rate_usd": 800.0,
                     "transit_days": 3,
                     "service_type": "ground_freight",
@@ -375,7 +375,7 @@ class TestHandlerEndToEnd:
 
         result = handler(event, None)
 
-        assert result["carrier_id"] == "carrier-ups"
+        assert result["carrier_id"] == "carrier-a"
         assert result["rate_usd"] == 800.0
 
 
@@ -385,8 +385,8 @@ class TestIdempotency:
     @patch("lambdas.assign_carrier.handler.get_item")
     def test_returns_cached_response_on_idempotency_hit(self, mock_get_item):
         cached_response = {
-            "carrier_id": "carrier-ups",
-            "carrier_name": "UPS",
+            "carrier_id": "carrier-a",
+            "carrier_name": "Carrier A",
             "rate_usd": 1200.0,
             "service_type": "ground_freight",
         }
@@ -453,8 +453,8 @@ class TestIdempotency:
         simulator_response = {
             "quotes": [
                 {
-                    "carrier_id": "carrier-ups",
-                    "carrier_name": "UPS",
+                    "carrier_id": "carrier-a",
+                    "carrier_name": "Carrier A",
                     "rate_usd": 1000.0,
                     "transit_days": 3,
                     "service_type": "ground_freight",
@@ -476,7 +476,7 @@ class TestIdempotency:
 
         result = handler(event, None)
 
-        assert result["carrier_id"] == "carrier-ups"
+        assert result["carrier_id"] == "carrier-a"
 
         # Verify idempotency record was stored
         mock_put_item.assert_called_once()
@@ -484,7 +484,7 @@ class TestIdempotency:
         assert stored_item["PK"] == "IDEMPOTENCY#key-456"
         assert stored_item["SK"] == "ASSIGN_CARRIER"
         stored_response = json.loads(stored_item["response"])
-        assert stored_response["carrier_id"] == "carrier-ups"
+        assert stored_response["carrier_id"] == "carrier-a"
 
 
 class TestEventBridgeNonBlocking:
@@ -506,8 +506,8 @@ class TestEventBridgeNonBlocking:
         simulator_response = {
             "quotes": [
                 {
-                    "carrier_id": "carrier-ups",
-                    "carrier_name": "UPS",
+                    "carrier_id": "carrier-a",
+                    "carrier_name": "Carrier A",
                     "rate_usd": 1000.0,
                     "transit_days": 3,
                     "service_type": "ground_freight",
@@ -531,5 +531,5 @@ class TestEventBridgeNonBlocking:
         result = handler(event, None)
 
         # Should still succeed — EventBridge is non-blocking
-        assert result["carrier_id"] == "carrier-ups"
+        assert result["carrier_id"] == "carrier-a"
         assert result["rate_usd"] == 1000.0
