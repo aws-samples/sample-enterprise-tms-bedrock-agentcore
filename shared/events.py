@@ -24,7 +24,7 @@ Design notes:
   (e.g. AppSync, S3 records) don't have to reach for the envelope's detail-type.
 - ``model_tier`` and ``confidence`` are promoted to the TOP LEVEL of the detail
   (previously they were nested inside ``payload`` for AI steps, which the
-  Streamlit consumer failed to read). They are ``None`` for deterministic steps.
+  progress-queue consumer failed to read). They are ``None`` for deterministic steps.
 - Publishing is non-blocking: failures are logged, never raised, so a telemetry
   problem can't fail a lifecycle Lambda.
 """

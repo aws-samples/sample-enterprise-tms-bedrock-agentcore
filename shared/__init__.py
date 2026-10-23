@@ -1,6 +1,5 @@
-"""Shared data models, constants, and utilities for the TMS MVP Demo."""
+"""Shared constants and utilities for the TMS MVP Demo."""
 
-from shared.models import AgentResponse, Shipment, TmsEvent
 from shared.constants import (
     CONFIDENCE_THRESHOLD,
     EVENT_BUS_NAME,
@@ -13,9 +12,6 @@ from shared.constants import (
 )
 
 __all__ = [
-    "AgentResponse",
-    "Shipment",
-    "TmsEvent",
     "CONFIDENCE_THRESHOLD",
     "EVENT_BUS_NAME",
     "INTELLIGENCE_MODEL_SLM",

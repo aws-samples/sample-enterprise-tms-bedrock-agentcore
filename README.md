@@ -2,15 +2,13 @@
 
 A sample Transportation Management System (TMS) that runs a shipment from order intake through carrier assignment, tracking, exception handling, and freight charge calculation. The deterministic work runs on AWS Step Functions and AWS Lambda at zero AI cost. Only two lifecycle steps call an AI agent, and each agent tries a small language model (SLM) first and escalates to a large language model (LLM) only when confidence is low. It is aimed at 3PL and logistics teams getting started with agentic AI, and it is built so you can adopt individual pieces next to systems you already run.
 
-> **Scope:** One `cdk deploy` provisions everything described in this README: the AI agents (running in Lambda with the Strands Agents SDK), the Step Functions backbone, a Next.js Transportation Cockpit (Amazon S3 + Amazon CloudFront, Amazon Cognito auth), Amazon API Gateway, Amazon Kinesis, Amazon S3 (documents + event archive), AWS AppSync (real-time UI), Amazon Bedrock AgentCore Memory, and AWS Glue / Amazon Athena over the event archive. See [README-MVP.md](README-MVP.md) for the step-by-step deploy and project layout.
+> **Scope:** One `cdk deploy` provisions everything described in this README: the AI agents (running in Lambda with the Strands Agents SDK), the Step Functions backbone, a Next.js Transportation Cockpit (Amazon S3 + Amazon CloudFront, Amazon Cognito auth), Amazon API Gateway, Amazon Kinesis, Amazon S3 (documents + event archive), AWS AppSync (real-time UI), Amazon Bedrock AgentCore Memory, and AWS Glue / Amazon Athena over the event archive.
 >
 > **Optional / not provisioned:** Amazon QuickSight dashboards can be connected to the deployed Athena tables as a follow-on step; the stack does not create them.
 
 ![TMS Architecture Diagram](TMS%20Architecture%20Diagram.png)
 
 ![TMS Request Flow Diagram](TMS%20Request%20Flow%20Diagram.png)
-
-> For full architecture explanation, see [docs/architecture-overview.md](docs/architecture-overview.md)
 
 ---
 
@@ -289,8 +287,52 @@ aws stepfunctions start-execution \
 cdk destroy
 ```
 
-> A more detailed walkthrough (project layout, what each resource does) is in
-> [README-MVP.md](README-MVP.md).
+---
+
+## Project Structure
+
+```
+├── agents/                        # 3 AI agents (Strands Agents SDK)
+│   ├── orchestrator_agent.py      # Request classification (Nova Micro)
+│   ├── planning_agent.py          # Route optimization (Nova Micro → Claude Sonnet 5)
+│   └── intelligence_agent.py      # Exception analysis (Nova Lite → Claude Sonnet 5)
+├── lambdas/                       # Lambda functions
+│   ├── create_freight_unit/
+│   ├── carrier_simulator/
+│   ├── assign_carrier/
+│   ├── track_shipment/
+│   ├── detect_exception/
+│   ├── calculate_charges/
+│   ├── complete_shipment/
+│   ├── invoke_planning_agent/     # Step Functions → Planning agent wrapper
+│   ├── invoke_intelligence_agent/ # Step Functions → Intelligence agent wrapper
+│   ├── invoke_orchestrator/       # API Gateway → Orchestrator agent
+│   ├── archive_event/             # EventBridge → S3 event archive
+│   ├── telematics_processor/      # Kinesis → DynamoDB tracking updates
+│   ├── realtime_publisher/        # EventBridge → AppSync mutation
+│   ├── seed_data/                 # CDK custom resource (carriers, rates)
+│   └── agent_layer_requirements.txt  # Strands Agents Lambda layer dependencies
+├── appsync/
+│   └── schema.graphql             # AppSync GraphQL schema (real-time feed)
+├── frontend/                      # Next.js Transportation Cockpit (S3 + CloudFront)
+│   ├── app/                       # App Router pages
+│   └── lib/                       # Config, Amplify (Cognito), API/subscription helpers
+├── cdk/                           # Infrastructure as code
+│   ├── tms_mvp_stack.py           # Full CDK stack
+│   └── nag_suppressions.py        # cdk-nag suppressions with justifications
+├── shared/                        # Shared utilities
+│   ├── constants.py
+│   ├── dynamo_utils.py
+│   ├── events.py                  # Standardized domain-event publisher
+│   └── memory.py                  # AgentCore Memory read/write helper
+├── tests/                         # Unit tests
+│   ├── property/                  # Property-based tests (Hypothesis)
+│   └── smoke/                     # Post-deployment validation
+├── app.py                         # CDK app entry point
+├── cdk.json
+├── pyproject.toml
+└── requirements.txt
+```
 
 ---
 
@@ -313,7 +355,6 @@ cdk destroy
 
 ## Documentation
 
-- [README-MVP.md](README-MVP.md) — Step-by-step deploy and project layout
-- [Architecture Diagrams](docs/architecture-diagrams.md) — 8 Mermaid diagrams covering system architecture, deterministic vs AI split, agent scope, shipment lifecycle flow, deployment architecture, and cost comparison
-- [Architecture Diagrams Explained](docs/architecture-diagrams-explained.md) — Plain-English walkthrough of each diagram and how the system flows
-- [Architecture Overview](docs/architecture-overview.md) — Consolidated architecture explanation
+- [Contributing](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [License](LICENSE)

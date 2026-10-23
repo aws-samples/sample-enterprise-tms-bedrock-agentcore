@@ -375,14 +375,15 @@ class TmsMvpStack(Stack):
         return bus
 
     def _create_progress_queue(self) -> sqs.Queue:
-        """Create SQS queue for Streamlit real-time progress polling.
+        """Create the SQS progress queue (a simple polling consumer for domain events).
 
         The queue receives all tms.mvp events via an EventBridge rule.
-        Streamlit polls this queue to display shipment lifecycle progress.
+        Useful for scripts or downstream systems that want to poll lifecycle
+        progress; the Transportation Cockpit uses AppSync for real-time updates.
 
         Configuration:
         - Queue name: tms-mvp-progress (from shared/constants.py SQS_QUEUE_NAME)
-        - Visibility timeout: 30s (appropriate for Streamlit polling interval)
+        - Visibility timeout: 30s (appropriate for a short polling interval)
         - Message retention: 1 day (demo only, no long-term replay needed)
         - Dead-letter queue: captures failed deliveries after 3 receive attempts
         - Removal policy: DESTROY (demo resources, clean up on stack deletion)
@@ -423,12 +424,12 @@ class TmsMvpStack(Stack):
         )
         rule.add_target(targets.SqsQueue(queue))
 
-        # Output the SQS queue URL for the Streamlit app to use
+        # Output the SQS queue URL for polling consumers (scripts, downstream systems)
         CfnOutput(
             self,
             "ProgressQueueUrl",
             value=queue.queue_url,
-            description="SQS queue URL for Streamlit progress polling",
+            description="SQS progress queue URL (polling consumer for tms.mvp domain events)",
             export_name="TmsMvpProgressQueueUrl",
         )
 

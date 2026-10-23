@@ -29,7 +29,9 @@ LLM_MODEL_HARDEST = "us.anthropic.claude-opus-5"
 # Used by agent code to build per-tier inference config.
 MODELS_WITHOUT_TEMPERATURE = ("claude-sonnet-5", "claude-opus-5")
 
-# SQS queue for Streamlit progress polling
+# SQS progress queue: a simple polling consumer that receives every tms.mvp
+# domain event (useful for scripts or downstream systems; the cockpit uses
+# AppSync for real-time updates)
 SQS_QUEUE_NAME = "tms-mvp-progress"
 
 # DynamoDB key prefixes for single-table design
