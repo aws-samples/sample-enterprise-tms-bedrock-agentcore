@@ -67,6 +67,21 @@ LAMBDA_ASSET_EXCLUDES = [
 ]
 
 
+# pip command used inside the Python bundling container to build the agent
+# Lambda layer. Pinned to manylinux x86_64 binary wheels to match the Lambda
+# runtime architecture regardless of the build host.
+_AGENT_LAYER_PIP_COMMAND = " ".join(
+    [
+        "pip install -r agent_layer_requirements.txt",
+        "--platform manylinux2014_x86_64",
+        "--implementation cp",
+        "--python-version 3.12",
+        "--only-binary=:all:",
+        "-t /asset-output/python",
+    ]
+)
+
+
 class TmsMvpStack(Stack):
     """CDK Stack for the TMS MVP Demo infrastructure.
 
@@ -746,13 +761,7 @@ class TmsMvpStack(Stack):
             bundling=BundlingOptions(
                 image=_lambda.Runtime.PYTHON_3_12.bundling_image,
                 platform="linux/amd64",
-                command=[
-                    "bash", "-c",
-                    "pip install -r agent_layer_requirements.txt"
-                    " --platform manylinux2014_x86_64 --implementation cp"
-                    " --python-version 3.12 --only-binary=:all:"
-                    " -t /asset-output/python",
-                ],
+                command=["bash", "-c", _AGENT_LAYER_PIP_COMMAND],
             ),
         )
         return _lambda.LayerVersion(

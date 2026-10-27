@@ -45,19 +45,20 @@ export async function submitShipment(
   return res.json();
 }
 
-const ON_SHIPMENT_EVENT = /* GraphQL */ `
-  subscription OnShipmentEvent {
-    onShipmentEvent {
-      event_type
-      shipment_id
-      timestamp
-      step
-      model_tier
-      confidence
-      payload
-    }
-  }
-`;
+// GraphQL subscription document (plain string; no interpolation needed).
+const ON_SHIPMENT_EVENT = [
+  "subscription OnShipmentEvent {",
+  "  onShipmentEvent {",
+  "    event_type",
+  "    shipment_id",
+  "    timestamp",
+  "    step",
+  "    model_tier",
+  "    confidence",
+  "    payload",
+  "  }",
+  "}",
+].join("\n");
 
 export function subscribeToEvents(
   onEvent: (e: ShipmentEvent) => void,

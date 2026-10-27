@@ -19,6 +19,10 @@ from typing import Any
 import boto3
 from boto3.dynamodb.conditions import Key
 
+# Random source for simulated quote variance. Not used for any security purpose;
+# SystemRandom avoids the predictable default PRNG.
+_rng = random.SystemRandom()
+
 from shared.constants import TABLE_NAME, PK_RATE, PK_CARRIER, SK_PROFILE
 from shared.dynamo_utils import get_rates, get_carrier
 
@@ -163,19 +167,19 @@ def _generate_simulated_quotes(
 
     quotes: list[dict] = []
     # Pick 2-4 carriers randomly for the simulated lane
-    num_carriers = random.randint(2, 4)
-    selected_carriers = random.sample(_DEFAULT_CARRIERS, num_carriers)
+    num_carriers = _rng.randint(2, 4)
+    selected_carriers = _rng.sample(_DEFAULT_CARRIERS, num_carriers)
 
     for carrier in selected_carriers:
         # Randomized variance per carrier (+/- 15%)
-        variance = random.uniform(0.85, 1.15)
+        variance = _rng.uniform(0.85, 1.15)
         base_rate = lane_base * variance
 
         # Weight-based pricing
         rate = _apply_weight_adjustment(base_rate, weight_kg)
 
         # Randomized transit days (1-5)
-        transit_days = random.randint(1, 5)
+        transit_days = _rng.randint(1, 5)
 
         # Assign service type
         carrier_service = service_type or _infer_service_type(carrier["carrier_id"])
