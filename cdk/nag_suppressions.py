@@ -154,6 +154,25 @@ def apply_nag_suppressions(stack: Stack) -> None:
                 ),
             },
             {
+                "id": "AwsSolutions-COG8",
+                "reason": (
+                    "The Cognito Plus feature plan is a paid tier. The sample "
+                    "keeps the default plan with a strong password policy and "
+                    "self sign-up disabled; consumers enable the Plus plan for "
+                    "threat protection in their own environments."
+                ),
+            },
+            {
+                "id": "AwsSolutions-ASC3",
+                "reason": (
+                    "AppSync request logging to CloudWatch Logs is enabled at the "
+                    "ERROR field-log level. Verbose content is intentionally "
+                    "excluded so request headers and shipment payloads are not "
+                    "written to logs. Consumers can include verbose content for "
+                    "debugging in their own environments."
+                ),
+            },
+            {
                 "id": "AwsSolutions-CFR1",
                 "reason": (
                     "Geo restriction is not applied; the cockpit sample is meant "

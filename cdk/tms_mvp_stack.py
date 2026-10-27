@@ -82,6 +82,26 @@ _AGENT_LAYER_PIP_COMMAND = " ".join(
 )
 
 
+# Build command for the Next.js cockpit inside the Node bundling container.
+# The source folder is mounted read-mostly at /asset-input; copying it to a
+# scratch directory first means `npm ci` never touches the host's
+# frontend/node_modules (which may contain host-OS binaries) and the build is
+# reproducible. npm gets a writable cache because the container runs as the
+# host user, which has no home directory in the image.
+_COCKPIT_BUILD_COMMAND = " && ".join(
+    [
+        "export HOME=/tmp npm_config_cache=/tmp/.npm NEXT_TELEMETRY_DISABLED=1",
+        "mkdir -p /tmp/app",
+        "tar -C /asset-input --exclude=./node_modules --exclude=./.next"
+        + " --exclude=./out -cf - . | tar -C /tmp/app -xf -",
+        "cd /tmp/app",
+        "npm ci --no-audit --no-fund",
+        "npm run build",
+        "cp -r out/. /asset-output/",
+    ]
+)
+
+
 class TmsMvpStack(Stack):
     """CDK Stack for the TMS MVP Demo infrastructure.
 
@@ -842,6 +862,8 @@ class TmsMvpStack(Stack):
             stream_name="tms-mvp-telematics",
             stream_mode=kinesis.StreamMode.ON_DEMAND,
             retention_period=Duration.hours(24),
+            # AWS-managed key (aws/kinesis): encryption at rest with no CMK cost.
+            encryption=kinesis.StreamEncryption.MANAGED,
         )
         stream.apply_removal_policy(RemovalPolicy.DESTROY)
 
@@ -978,6 +1000,13 @@ class TmsMvpStack(Stack):
             user_pool_name="tms-mvp-users",
             self_sign_up_enabled=False,
             sign_in_aliases=cognito.SignInAliases(email=True),
+            password_policy=cognito.PasswordPolicy(
+                min_length=8,
+                require_lowercase=True,
+                require_uppercase=True,
+                require_digits=True,
+                require_symbols=True,
+            ),
             removal_policy=RemovalPolicy.DESTROY,
         )
         self.user_pool_client = self.user_pool.add_client(
@@ -994,6 +1023,11 @@ class TmsMvpStack(Stack):
                 appsync.SchemaFile.from_asset(
                     os.path.join(self._project_root(), "appsync", "schema.graphql")
                 )
+            ),
+            # Request-level logging of resolver errors to CloudWatch Logs.
+            log_config=appsync.LogConfig(
+                field_log_level=appsync.FieldLogLevel.ERROR,
+                exclude_verbose_content=True,
             ),
             authorization_config=appsync.AuthorizationConfig(
                 default_authorization=appsync.AuthorizationMode(
@@ -1253,11 +1287,7 @@ class TmsMvpStack(Stack):
             frontend_dir,
             bundling=BundlingOptions(
                 image=_lambda.Runtime.NODEJS_20_X.bundling_image,
-                command=[
-                    "bash",
-                    "-c",
-                    "npm ci && npm run build && cp -r out/* /asset-output/",
-                ],
+                command=["bash", "-c", _COCKPIT_BUILD_COMMAND],
             ),
         )
 
