@@ -6,9 +6,9 @@ A sample Transportation Management System (TMS) that runs a shipment from order 
 >
 > **Optional / not provisioned:** Amazon QuickSight dashboards can be connected to the deployed Athena tables as a follow-on step; the stack does not create them.
 
-![TMS Architecture Diagram](TMS%20Architecture%20Diagram.png)
+![TMS Architecture Diagram](TMS%20Architecture%20Diagram%20v3.png)
 
-![TMS Request Flow Diagram](TMS%20Request%20Flow%20Diagram.png)
+![TMS Request Flow Diagram](TMS%20Request%20Flow%20Diagram%20v3.png)
 
 ---
 
