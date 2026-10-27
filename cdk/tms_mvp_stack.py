@@ -735,22 +735,32 @@ class TmsMvpStack(Stack):
         The agent Lambdas import ``strands`` (Strands Agents SDK), which is NOT
         part of the Lambda runtime and is not in the bundled project source.
         This layer pip-installs those deps (Linux/py3.12 wheels) at deploy time.
+
+        The Lambda functions run on x86_64 (the CDK default). The build is pinned
+        to x86_64 in two ways so it also works on Apple Silicon / ARM hosts:
+        the bundling container runs as linux/amd64, and pip is told to fetch
+        manylinux x86_64 binary wheels (e.g. pydantic_core) explicitly.
         """
         layer_asset = _lambda.Code.from_asset(
             os.path.join(self._project_root(), "lambdas"),
-            bundling={
-                "image": _lambda.Runtime.PYTHON_3_12.bundling_image,
-                "command": [
+            bundling=BundlingOptions(
+                image=_lambda.Runtime.PYTHON_3_12.bundling_image,
+                platform="linux/amd64",
+                command=[
                     "bash", "-c",
-                    "pip install -r agent_layer_requirements.txt -t /asset-output/python",
+                    "pip install -r agent_layer_requirements.txt"
+                    " --platform manylinux2014_x86_64 --implementation cp"
+                    " --python-version 3.12 --only-binary=:all:"
+                    " -t /asset-output/python",
                 ],
-            },
+            ),
         )
         return _lambda.LayerVersion(
             self,
             "AgentDependenciesLayer",
             code=layer_asset,
             compatible_runtimes=[_lambda.Runtime.PYTHON_3_12],
+            compatible_architectures=[_lambda.Architecture.X86_64],
             description="Strands Agents SDK + pydantic for the TMS AI-agent Lambdas",
         )
 
