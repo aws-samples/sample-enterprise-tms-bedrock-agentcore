@@ -353,6 +353,13 @@ cdk destroy
 
 ---
 
+## Contributors
+
+- Nikhil Bhagat (Lead)
+- Shiva Mahalingam (Contributor)
+
+---
+
 ## Documentation
 
 - [Contributing](CONTRIBUTING.md)
